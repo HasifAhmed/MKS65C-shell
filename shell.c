@@ -1,4 +1,4 @@
- #include <string.h> //strcmp()
+  #include <string.h> //strcmp()
  #include <unistd.h>
  #include <stdio.h>
  #include <stdlib.h>
@@ -19,7 +19,19 @@ char ** parse_args( char * line ){
   }
   args[i] = NULL;
   return args;
-  }
+}
+
+void run(char *args){
+  char **parse = malloc(1024 * sizeof(char *));
+  parse = parse_args(args);
+	int counter = 0;
+	while(args){
+        parse[counter] = strsep(&args, ";");
+		    //run_commands(parse_args(parse[counter]));
+        execvp(parse[0], parse);
+        counter++;
+	}
+}
 int main(){
 
 
@@ -31,32 +43,12 @@ int main(){
     int a = fork();
     printf("\nhasifadil@BB:$");
       //fflush(stdout);
-      char *p,cpid[6];
-      sprintf(cpid,"%d",getpid());
-      p = cpid;
-    printf("%s",p); 
-   fgets(args,sizeof(args), stdin);
+      
+    fgets(args,1023, stdin);
     args[strlen(args) - 1 ] = 0;
-    char **parse = parse_args(args);
-    printf("Arg 0:%s",parse[0]);
-    printf("%d",strcmp(parse[0],"exit"));
-
-    if(!a){
-      if(strcmp(parse[0],"exit") == 0){
-        char *ok;
-        char line[14] = "kill -9 ";
-        strcat(line, p);
-        ok = line;
-        char ** new_parse = parse_args(ok);
-
-        printf("hey");
-        printf("%s",new_parse[2]);
-        //execvp(new_parse[0],new_parse);
-        return 0;
-      }
-        execvp(parse[0],parse);
-        return 0;
-    }
+    //char **parse = parse_args(args);
+    run(args);
+    
     int p, status;
     p = wait(&status);
   }
