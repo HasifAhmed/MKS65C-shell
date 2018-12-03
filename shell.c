@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <fcntl.h>
 #include "shell.h"
+#include <ctype.h>
 char ** parse_args( char * line, char ** buff){
 
  int counter = 0;
@@ -39,11 +40,13 @@ int check(char * command){
       if(strchr(com, '>')){
         int tmp = dup(STDOUT_FILENO);
 
-        int file = open(redir[1], O_CREAT | O_WRONLY, 0644);
+        int file = open(redir[1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
 
         dup2(file, STDOUT_FILENO);
 
+
         run_each(redir[0]);
+
         dup2(tmp, STDOUT_FILENO);
         close(file);
       }
@@ -68,6 +71,7 @@ int check(char * command){
 
 
 int run_each(char * command){
+  trim(command);
   if(strchr(command,'<') || strchr(command, '>')){
     int pid = fork();
     if(!pid){
@@ -78,6 +82,15 @@ int run_each(char * command){
     return 0;
   }
 
+  if(strchr(command,'|')){
+    int pid2 = fork();
+    if(!pid2){
+      piping(command);
+    }
+    int p, status;
+    p = wait(&status);
+    return 0;
+  }
 
  char **parsed = malloc(1024 * sizeof(char *));
  parse_args(command, parsed);
@@ -104,8 +117,56 @@ int run_each(char * command){
  return 0;
 }
 
+int piping(char *input){
+  char * pipi = strchr(input,'|');
+  char* x = input;
+  pipi[0] = 0;
+  char * y = pipi + 1;
+  char **parse1 = malloc(1024 * sizeof(char *));
+  char ** parse2 = malloc(1024 * sizeof(char *));
+  parse_args(x,parse1);
+  parse_args(y,parse2);
+  int pipes[2];
+  pipe(pipes);
+  int a = fork();
+  if(a){
+    dup2(pipes[1], 1);
+    close(pipes[0]);
+    execvp(parse1[0], parse1);
+
+  }
+  else {
+    dup2(pipes[0], 0);
+    close(pipes[1]);
+    execvp(parse2[0],parse2);
+
+
+  }
+
+  free(parse1);
+  free(parse2);
+  return 0;
+
+}
+
+
+void trim(char * arg){
+  int i = strlen(arg) - 1;
+  for(; i > 1; i--){
+    if(arg[i] == ' '){
+      arg[i] = '\0';
+    }
+    if(arg[i] != ' '){
+      break;
+    }
+  }
+}
+
+
+
 
 int run(char *args){
+
  char **comline = malloc(1024 * sizeof(char*));
 
  int command = 0;
@@ -123,6 +184,7 @@ static void signalhandler( int signo){
  char name[100];
  getcwd(name, sizeof(name));
  printf("\nBB-%s$", name);
+ fflush(stdout);
 
 }
 
@@ -132,6 +194,7 @@ int main(){
 
  printf("==============BoroBap=============\n");
  char *args = malloc(1024 * sizeof(args));
+
 
  while(1){
 
@@ -148,5 +211,6 @@ int main(){
 
 
  }
+ free(args);
  return 0;
 }
