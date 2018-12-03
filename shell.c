@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h>
+#include "shell.h"
 char ** parse_args( char * line, char ** buff){
 
  int counter = 0;
@@ -14,7 +16,69 @@ char ** parse_args( char * line, char ** buff){
  return buff;
 }
 
+
+int check(char * command){
+      char **redir = malloc(1024 * sizeof(char *));
+      char com[1024];
+      strcpy(com,command);
+
+      int arg = 0;
+      while(command){
+        if( strchr(com, '>')){
+          redir[arg] = strsep(&command, ">");
+          //printf("%s", redir[arg]);
+
+        } else {
+          redir[arg] = strsep(&command, "<");
+        }
+        arg++;
+      }
+      //redir[arg] = command;
+      //printf("\n%s\n", redir[0]);
+      //printf("\n%s\n", redir[1]);
+      if(strchr(com, '>')){
+        int tmp = dup(STDOUT_FILENO);
+
+        int file = open(redir[1], O_CREAT | O_WRONLY, 0644);
+
+        dup2(file, STDOUT_FILENO);
+
+        run_each(redir[0]);
+        dup2(tmp, STDOUT_FILENO);
+        close(file);
+      }
+      if(strchr(com, '<')){
+        int tmp = dup(STDIN_FILENO);
+
+        int file = open(redir[1],  O_WRONLY);
+
+        dup2(file, STDIN_FILENO);
+
+        run_each(redir[0]);
+        dup2(tmp, STDIN_FILENO);
+        close(file);
+
+      }
+
+
+    free(redir);
+
+    return 0;
+  }
+
+
 int run_each(char * command){
+  if(strchr(command,'<') || strchr(command, '>')){
+    int pid = fork();
+    if(!pid){
+      check(command);
+    }
+    int p, status;
+    p = wait(&status);
+    return 0;
+  }
+
+
  char **parsed = malloc(1024 * sizeof(char *));
  parse_args(command, parsed);
 
