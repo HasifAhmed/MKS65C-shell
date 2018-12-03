@@ -1,56 +1,88 @@
-  #include <string.h> //strcmp()
- #include <unistd.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <sys/wait.h>
-char ** parse_args( char * line ){
+#include <string.h> //strcmp()
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <signal.h>
+char ** parse_args( char * line, char ** buff){
 
-  char **args = calloc(1, sizeof(char **) );
-  char * s1 = line;
-  args[0] = calloc(1,sizeof(char*));
-  line = strsep(&s1," ");
-  args[0] = line;
-  int i = 1;
-  while(s1!=NULL){
-    args[i] = calloc(1,sizeof(char*));
-    line = strsep(&s1," ");
-    args[i] = line;
-    i++;
-  }
-  args[i] = NULL;
-  return args;
+ int counter = 0;
+ while(line){
+   buff[counter] = strsep(&line, " ");
+   counter++;
+ }
+ return buff;
 }
 
-void run(char *args){
-  char **parse = malloc(1024 * sizeof(char *));
-  parse = parse_args(args);
-	int counter = 0;
-	while(args){
-        parse[counter] = strsep(&args, ";");
-		    //run_commands(parse_args(parse[counter]));
-        execvp(parse[0], parse);
-        counter++;
-	}
+int run_each(char * command){
+ char **parsed = malloc(1024 * sizeof(char *));
+ parse_args(command, parsed);
+
+ if(strcmp(parsed[0], "exit") == 0){
+   //free(parsed);
+   exit(0);
+ }
+ if(strcmp(parsed[0], "cd") == 0){
+   if(chdir(parsed[1]) == -1){
+     printf("BB-$ Not Found\n");
+   }
+   //fflush(stdout);
+   return 0;
+ }
+ int a = fork();
+ if(!a){
+   execvp(parsed[0],parsed);
+ }
+ int p, status;
+ p = wait(&status);
+
+ free(parsed);
+ return 0;
 }
+
+
+int run(char *args){
+ char **comline = malloc(1024 * sizeof(char*));
+
+ int command = 0;
+ while(args){
+   comline[command] = strsep(&args,";");
+   run_each(comline[command]);
+   command++;
+ }
+
+ free(comline);
+ return 0;
+}
+
+static void signalhandler( int signo){
+ char name[100];
+ getcwd(name, sizeof(name));
+ printf("\nBB-%s$", name);
+
+}
+
 int main(){
 
 
 
-  printf("==============BoroBap=============\n");
-  char *args = malloc(1024 * sizeof(args));
+ printf("==============BoroBap=============\n");
+ char *args = malloc(1024 * sizeof(args));
 
-  while(1){
-    int a = fork();
-    printf("\nhasifadil@BB:$");
-      //fflush(stdout);
-      
-    fgets(args,1023, stdin);
-    args[strlen(args) - 1 ] = 0;
-    //char **parse = parse_args(args);
-    run(args);
-    
-    int p, status;
-    p = wait(&status);
-  }
+ while(1){
 
+   signal(SIGINT, signalhandler);
+   char name[100];
+   getcwd(name, sizeof(name));
+   printf("\nBB-%s$", name);
+   fflush(stdout);
+   fgets(args,1023, stdin);
+
+
+   args[strlen(args) - 1] = 0;
+   run(args);
+
+
+ }
+ return 0;
 }
