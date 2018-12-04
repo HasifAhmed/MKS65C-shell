@@ -14,7 +14,9 @@ Attempted:
 - To implement >> and << 
 
 Bugs:
-- pipes and redirects cannot be run with spaces 
+- pipes and redirects cannot be run with spaces
+  DOES NOT WORK: cat hi.txt > bye.txt
+  WORKS: cat hi.txt>bye.txt
 - exit sometimes takes multiple attempts to close shell
 - after incorrect commands the error message may be repeated untl cd out of directory and back into it
 
