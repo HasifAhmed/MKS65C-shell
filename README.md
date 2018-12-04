@@ -11,6 +11,7 @@ Attempted:
 - To ignore extra spaces when using ls or cd (works for cd but only allows for one extra space for ls)
 - Allow for spacing when running redirection or pipe (didn't work yet but I have an idea on how to do it)
 - Multipe pipes (unclear)
+- To implement >> and << 
 
 Bugs:
 - pipes and redirects cannot be run with spaces 
