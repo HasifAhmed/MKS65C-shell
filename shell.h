@@ -1,4 +1,4 @@
-char ** parse_args( char * line, char ** buff);
+char ** parse_args( char * line);
 int run_each(char * command);
 int check(char * command);
 int run(char *args);
