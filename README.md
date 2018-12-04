@@ -2,7 +2,7 @@
 Hasif Ahmed Adil Gondal Per 10
 
 Features:
-- Redirection with multiple > or < work
+- Redirection with single > or < work
 - Forks and executes commands 
 - Parses multiple commands with ;
 - Single pipe functionality is there
@@ -10,7 +10,7 @@ Features:
 Attempted:
 - To ignore extra spaces when using ls or cd (works for cd but only allows for one extra space for ls)
 - Allow for spacing when running redirection or pipe (didn't work yet but I have an idea on how to do it)
-- Multipe pipes (unclear)
+- Multipe pipes (unclear) and multiple redirection
 - To implement >> and << 
 
 Bugs:
