@@ -7,6 +7,12 @@
 #include <fcntl.h>
 #include "shell.h"
 #include <ctype.h>
+
+/*======== char **parse_args(char *line, char **buff) ==========
+Inputs:  char *line, char **buff
+Returns: A pointer to the 2D array containing the parsed args
+Seperates the line to be executed 
+====================*/
 char ** parse_args( char * line, char ** buff){
 
  int counter = 0;
@@ -17,7 +23,11 @@ char ** parse_args( char * line, char ** buff){
  return buff;
 }
 
-
+/*======== void check(char* command) 
+Inputs:  char* command
+Returns: 0
+Redirects based on > or <. Currenty space issues!!!
+====================*/
 int check(char * command){
       char **redir = malloc(1024 * sizeof(char *));
       char com[1024];
@@ -70,6 +80,11 @@ int check(char * command){
   }
 
 
+/* int run_commands(char *command) 
+Inputs:  char *command
+Returns: 0
+Runs a specific command (pipe, redirection included)
+*/
 int run_each(char * command){
   trim(command);
   if(strchr(command,'<') || strchr(command, '>')){
@@ -117,6 +132,11 @@ int run_each(char * command){
  return 0;
 }
 
+/*======== void piping(char* input) 
+Inputs:  char* input
+Returns: 0
+Runs pipe commands
+====================*/
 int piping(char *input){
   char * pipi = strchr(input,'|');
   char* x = input;
@@ -149,7 +169,11 @@ int piping(char *input){
 
 }
 
-
+/*======== void trim(char *arg) ==========
+Inputs:  char *arg
+Returns: void
+Attemps to trim out spaces so commands can be run properly 
+====================*/
 void trim(char * arg){
   int i = strlen(arg) - 1;
   for(; i > 1; i--){
@@ -164,7 +188,11 @@ void trim(char * arg){
 
 
 
-
+/*======== void run(char *args) ==========
+Inputs:  char *args
+Returns: 0
+Parses the args at the ; to be able to run all of those commands
+====================*/
 int run(char *args){
 
  char **comline = malloc(1024 * sizeof(char*));
@@ -180,6 +208,11 @@ int run(char *args){
  return 0;
 }
 
+/*======== void sighandler(int signo) ==========
+Inputs:  int signo
+Returns: void
+Checks for the SIGINT and prints shell line everytime enter key is pressed.
+====================*/
 static void signalhandler( int signo){
  char name[100];
  getcwd(name, sizeof(name));
@@ -188,6 +221,10 @@ static void signalhandler( int signo){
 
 }
 
+
+/*======== int main() ==========
+Displays shell and allows for input
+====================*/
 int main(){
 
 
