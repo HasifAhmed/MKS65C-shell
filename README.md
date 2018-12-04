@@ -16,3 +16,11 @@ Bugs:
 - pipes and redirects cannot be run with spaces 
 - exit sometimes takes multiple attempts to close shell
 - after incorrect commands the error message may be repeated untl cd out of directory and back into it
+
+Function Headers: 
+<code> /* char **parse_args(char *line, char **buff)
+Inputs:  char *line, char **buff
+Returns: A pointer to the 2D array containing the parsed args
+Seperates the line to be executed 
+*/
+</code>
