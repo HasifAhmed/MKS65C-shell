@@ -2,26 +2,19 @@
 Hasif Ahmed Adil Gondal Per 10
 
 Features:
-<<<<<<< HEAD
-- Redirection with multiple > or < work
-- Forks and executes commands
-=======
 - Redirection with single > or < work
 - Forks and executes commands 
->>>>>>> 0976301439fa058d75acf592c0ed5c559fab54ca
 - Parses multiple commands with ;
 - Single pipe functionality is there
+- ignores whitespace for commands
 
 Attempted:
-- To ignore extra spaces when using ls or cd (works for cd but only allows for one extra space for ls)
 - Allow for spacing when running redirection or pipe (didn't work yet but I have an idea on how to do it)
-<<<<<<< HEAD
 - Multipe pipes (unclear)
 - To implement >> and <<
 
 Bugs:
 - pipes and redirects cannot be run with spaces in between 
-=======
 - Multipe pipes (unclear) and multiple redirection
 - To implement >> and << 
 
@@ -29,7 +22,6 @@ Bugs:
 - pipes and redirects cannot be run with spaces
   DOES NOT WORK: cat hi.txt > bye.txt
   WORKS: cat hi.txt>bye.txt
->>>>>>> 0976301439fa058d75acf592c0ed5c559fab54ca
 - exit sometimes takes multiple attempts to close shell
 - after incorrect commands the error message may be repeated untl cd out of directory and back into it
 
