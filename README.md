@@ -19,9 +19,10 @@ Bugs:
 - To implement >> and << 
 
 Bugs:
-- pipes and redirects cannot be run with spaces
-  DOES NOT WORK: cat hi.txt > bye.txt
-  WORKS: cat hi.txt>bye.txt
+- pipe and '>' redirect cannot be run with spaces
+  DOES NOT WORK: cat hi.txt > bye.txt , ls | wc
+  WORKS: cat hi.txt>bye.txt , ls|wc
+-'<' redirect sometimes runs with spaces, but sometimes requires no spaces
 - exit sometimes takes multiple attempts to close shell
 - after incorrect commands the error message may be repeated untl cd out of directory and back into it
 
