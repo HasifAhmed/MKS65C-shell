@@ -3,26 +3,24 @@ Hasif Ahmed Adil Gondal Per 10
 
 Features:
 - Redirection with single > or < work
-- Forks and executes commands 
+- Forks and executes commands
 - Parses multiple commands with ;
 - Single pipe functionality is there
-- ignores whitespace for commands
+- ignores some whitespace
 
 Attempted:
-- Allow for spacing when running redirection or pipe (didn't work yet but I have an idea on how to do it)
-- Multipe pipes (unclear)
+- Allow for spacing when running redirection or pipe (left side done for redirection, pipe finished)
+- Multiple pipes (unclear)
 - To implement >> and <<
 
 Bugs:
-- pipes and redirects cannot be run with spaces in between 
+- pipes and redirects cannot be run with spaces in between
 - Multipe pipes (unclear) and multiple redirection
-- To implement >> and << 
+- To implement >> and <<
 
 Bugs:
-- pipe and '>' redirect cannot be run with spaces
-  DOES NOT WORK: cat hi.txt > bye.txt , ls | wc
-  WORKS: cat hi.txt>bye.txt , ls|wc
--'<' redirect sometimes runs with spaces, but sometimes requires no spaces
+
+- redirect requires a space on the left side of the sign but cannot have a space to the right of the sign Ex:  cat hello.txt >goodbye.txt    wc <hello.txt
 - exit sometimes takes multiple attempts to close shell
 - after incorrect commands the error message may be repeated untl cd out of directory and back into it
 
