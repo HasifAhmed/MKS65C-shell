@@ -6,7 +6,10 @@
 #include <signal.h>
 #include <fcntl.h>
 #include "shell.h"
+#include "redirect.h"
+#include "pipes.h"
 #include <ctype.h>
+#include <errno.h>
 
 /* char **parse_args(char *line, char **buff)
 Inputs:  char *line, char **buff
@@ -15,10 +18,11 @@ Seperates the line to be executed
 */
 char ** parse_args( char * line){
 
-  char ** buff = malloc(10* sizeof(char *));
+  char ** buff = calloc(10,sizeof(char *));
   int counter = 0;
-  while(line){
-    char *temp = strsep(&line, " ");
+  char * temp;
+  while(line != NULL && counter < 9){
+    temp = strsep(&line, " ");
     if(strcmp(temp,"") ){
       buff[counter] = temp;
       //printf("arr[%d]: %s\n", i, arr[i]);
@@ -26,69 +30,11 @@ char ** parse_args( char * line){
     }
 
   }
+  //printf("%s\n %s\n",buff[0],buff[1]);
   return buff;
 }
 
-/* void check(char* command)
-Inputs:  char* command
-Returns: 0
-Redirects based on > or <. Currenty space issues!!!
-*/
-int check(char * command){
-      char **redir = malloc(10 * sizeof(char*));
-      //parse_args(command);
-      char com[1024];
-      strcpy(com,command);
 
-
-      int arg = 0;
-      while(command){
-        if( strchr(com, '>')){
-          redir[arg] = strsep(&command, ">" );
-
-          //printf("%s", redir[arg]);
-
-        } else {
-          redir[arg] = strsep(&command, "<" );
-
-        }
-        arg++;
-      }
-
-      //redir[arg] = command;
-      //printf("\n%s\n", redir[0]);
-      //printf("\n%s\n", redir[1]);
-      if(strchr(com, '>')){
-        int tmp = dup(STDOUT_FILENO);
-
-        int file = open(redir[1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-
-        dup2(file, STDOUT_FILENO);
-
-
-        run_each(redir[0]);
-
-        dup2(tmp, STDOUT_FILENO);
-        close(file);
-      }
-      if(strchr(com, '<')){
-        int tmp = dup(STDIN_FILENO);
-
-        int file = open(redir[1],  O_WRONLY);
-
-        dup2(file, STDIN_FILENO);
-
-        run_each(redir[0]);
-        dup2(tmp, STDIN_FILENO);
-        close(file);
-
-      }
-
-
-    free(redir);
-
-    return 0;
-  }
 
 
 /* int run_commands(char *command)
@@ -98,6 +44,7 @@ Runs a specific command (pipe, redirection included)
 */
 int run_each(char * command){
   //trim(command);
+
   if(strchr(command,'<') || strchr(command, '>')){
     int pid = fork();
     if(!pid){
@@ -105,12 +52,13 @@ int run_each(char * command){
     }
   /*  else if( pid = -1){
     }
-    */
+  */ 
     int p, status;
     p = wait(&status);
     return 0;
   }
 
+/*
   if(strchr(command,'|')){
     int pid2 = fork();
     if(!pid2){
@@ -120,7 +68,7 @@ int run_each(char * command){
     p = wait(&status);
     return 0;
   }
-
+*/
  char **parsed = parse_args(command);
 
  if(strcmp(parsed[0], "exit") == 0){
@@ -135,9 +83,16 @@ int run_each(char * command){
    return 0;
  }
  int a = fork();
+ 
  if(!a){
- execvp(parsed[0],parsed);
-}
+   
+   if( execvp(parsed[0],parsed) < 0){
+       perror("Command Failed");
+             
+       //free(parsed);
+     }
+   
+ }
  int p, status;
  p = wait(&status);
 
@@ -145,40 +100,7 @@ int run_each(char * command){
  return 0;
 }
 
-/* void piping(char* input)
-Inputs:  char* input
-Returns: 0
-Runs pipe commands
-*/
-int piping(char *input){
-  char * pipi = strchr(input,'|');
-  char* x = input;
-  pipi[0] = 0;
-  char * y = pipi + 1;
-  char **parse1 = parse_args(x);
-  char ** parse2 = parse_args(y);
-  int pipes[2];
-  pipe(pipes);
-  int a = fork();
-  if(!a){
-    dup2(pipes[1], 1);
-    close(pipes[0]);
-    execvp(parse1[0], parse1);
 
-  }
-  else {
-    dup2(pipes[0], 0);
-    close(pipes[1]);
-    execvp(parse2[0],parse2);
-
-
-  }
-
-  free(parse1);
-  free(parse2);
-  return 0;
-
-}
 
 /*void trim(char *arg)
 Inputs:  char *arg
@@ -208,12 +130,17 @@ Parses the args at the ; to be able to run all of those commands
 int run(char *args){
 
  char **comline = malloc(1024 * sizeof(char*));
-
+ 
  int command = 0;
  while(args){
    comline[command] = strsep(&args,";");
+   if(strcmp(comline[command],
+	     "") == 0){
+     } else{ 
    run_each(comline[command]);
+     }
    command++;
+    
  }
 
  free(comline);
