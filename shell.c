@@ -250,7 +250,7 @@ int main(){
    signal(SIGINT, signalhandler);
    char name[100];
    getcwd(name, sizeof(name));
-   printf("\nBB-%s$", name);
+   //printf("\nBB-%s$", name);
    fflush(stdout);
    fgets(args,1023, stdin);
 
