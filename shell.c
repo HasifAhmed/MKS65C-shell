@@ -10,6 +10,8 @@
 #include "pipes.h"
 #include <ctype.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /* char **parse_args(char *line, char **buff)
 Inputs:  char *line, char **buff
@@ -34,6 +36,23 @@ char ** parse_args( char * line){
   return buff;
 }
 
+char ** parse_at( char * line, char * at){
+
+  char ** buff = calloc(10,sizeof(char *));
+  int counter = 0;
+  char * temp;
+  while(line != NULL && counter < 9){
+    temp = strsep(&line, at);
+    if(strcmp(temp,"") ){
+      buff[counter] = temp;
+      //printf("arr[%d]: %s\n", i, arr[i]);
+      counter++;
+    }
+
+  }
+  //printf("%s\n %s\n",buff[0],buff[1]);
+  return buff;
+}
 
 
 
@@ -45,31 +64,33 @@ Runs a specific command (pipe, redirection included)
 int run_each(char * command){
   //trim(command);
 
-  if(strchr(command,'<') || strchr(command, '>')){
-    int pid = fork();
-    if(!pid){
-      check(command);
-    }
-  /*  else if( pid = -1){
-    }
-  */ 
-    int p, status;
-    p = wait(&status);
+  //char **parsed;
+  /*
+  if(command[0] == '>' || command[0] == '<' || command[0] == '|'){
+    printf("Fail: Incorrect Command");
     return 0;
   }
+*/
 
-/*
+  //char **redir_args = parse_args(command);
+
+  if(strchr(command, '>') || strchr(command, '<')) {
+    return check(command);
+  }
+
+
+
   if(strchr(command,'|')){
-    int pid2 = fork();
-    if(!pid2){
+    if(!fork()){
       piping(command);
     }
     int p, status;
     p = wait(&status);
     return 0;
+
   }
-*/
- char **parsed = parse_args(command);
+
+ char ** parsed = parse_args(command);
 
  if(strcmp(parsed[0], "exit") == 0){
    //free(parsed);
@@ -80,18 +101,19 @@ int run_each(char * command){
      printf("BB-$ Not Found\n");
    }
    //fflush(stdout);
+   free(parsed);
    return 0;
  }
- int a = fork();
- 
- if(!a){
-   
+
+ if(!fork()){
+
    if( execvp(parsed[0],parsed) < 0){
-       perror("Command Failed");
-             
+     printf("Fail: %s\n", strerror(errno));
+     exit(0);
+
        //free(parsed);
      }
-   
+
  }
  int p, status;
  p = wait(&status);
@@ -130,17 +152,17 @@ Parses the args at the ; to be able to run all of those commands
 int run(char *args){
 
  char **comline = malloc(1024 * sizeof(char*));
- 
+
  int command = 0;
  while(args){
    comline[command] = strsep(&args,";");
    if(strcmp(comline[command],
 	     "") == 0){
-     } else{ 
+     } else{
    run_each(comline[command]);
      }
    command++;
-    
+
  }
 
  free(comline);
@@ -153,9 +175,11 @@ Returns: void
 Checks for the SIGINT and prints shell line everytime enter key is pressed.
 */
 static void signalhandler( int signo){
- char name[100];
- getcwd(name, sizeof(name));
- printf("\nBB-%s$", name);
+  char name[100];
+  char user[15];
+  getcwd(name, sizeof(name));
+  getlogin_r(user,sizeof(user));
+ printf("\nBoroBap:%s:%s$>", name, user);
  fflush(stdout);
 
 }
@@ -173,11 +197,16 @@ int main(){
 
 
  while(1){
-
    signal(SIGINT, signalhandler);
    char name[100];
+   char user[15];
    getcwd(name, sizeof(name));
+   getlogin_r(user,sizeof(user));
+
    //printf("\nBB-%s$", name);
+   if(isatty(0)){
+     printf("BoroBap:%s:%s$>",name,user);
+   }
    fflush(stdout);
    fgets(args,1023, stdin);
 
