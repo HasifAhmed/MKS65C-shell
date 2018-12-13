@@ -40,7 +40,6 @@ Parses the args at the ; to be able to run all of those commands
 /*void sighandler(int signo)
 Inputs:  int signo
 Returns: void
-Checks for the SIGINT and prints shell line everytime enter key is pressed.
 */
 
 /*int main()
@@ -52,7 +51,7 @@ redirect.c --------------------------------------------
 /* int check(char* command)
 Inputs:  char* command
 Returns: 0 or 1
-Redirects based on > or <. Currenty space issues!!!
+Redirects based on > or <.
 */
 --------------------------------------------------------
 
